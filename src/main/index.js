@@ -18,6 +18,7 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
+    webPreferences: {webSecurity: false},
     height: 563,
     useContentSize: true,
     width: 1000
@@ -28,6 +29,10 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+    if (process.env.NODE_ENV === 'development') {
+        BrowserWindow.addDevToolsExtension("/Users/jfxy/Library/Application\ Support/Google/Chrome/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/5.3.3_0");
+        // BrowserWindow.addDevToolsExtension("C:\\Users\\qingbo\\vue-devtools\\shells\\chrome");
+    }
 }
 
 app.on('ready', createWindow)
