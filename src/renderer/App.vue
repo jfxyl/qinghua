@@ -31,7 +31,7 @@
                 </div>
                 <div class="echart-warp o-hidden clearfix">
                   <div class="news-warp h430" id="FontScroll">
-                    <ul class="news">
+                    <ul class="news newscro1">
                       <li class="news-li clearfix" v-for="(item,index) in wbList" :key="index" ref="rollul" :class="{anim:animate.anim1==true}">
                         <div class="in">
                           <p class="title fs16 crc8 ovhidden">{{item.content}}</p>
@@ -55,7 +55,7 @@
             <div class="plane h510 bg4">
               <div class="plane-title">本地视频播放<i class="icons icon-tit"></i></div>
               <div class="plane-body pt0 por">
-                <video class="video1" id="video_id" :src="videoSrc"  width="" height="" autoplay="autoplay"></video>
+                <video class="video1" id="video_id" :src="videoSrc"  width="" height="" autoplay="autoplay" muted></video>
               </div>
             </div>
           </div>
@@ -161,12 +161,13 @@
               <div class="plane-title">媒体华水<i class="icons icon-tit"></i></div>
               <div class="plane-body">
                 <div class="news-warp media-li h290" id="FontScroll">
-                  <ul class="news mt5">
+                  <ul class="news mt5 newscro2">
                     <li class="news-li clearfix" v-for="(item,index) in mediaList" :key="index" ref="rollul1" :class="{anim:animate.anim2==true}">
                       <span class="cr74 fr">{{time(item._source.news_postdate)}}</span>
                       <i class="num ac">{{item.ind}}</i>
                       <p class="title fs16 crc8 ovhidden">{{item._source.news_title}}</p>
                     </li>
+
                   </ul>
                 </div>
               </div>
@@ -201,7 +202,7 @@
               <div class="plane-title mb0">矩阵热文<i class="icons icon-tit"></i></div>
               <div class="plane-body">
                 <div class="news-warp h290" id="FontScroll">
-                  <ul class="news">
+                  <ul class="news newscro3">
                     <li class="news-li clearfix" v-for="(item,index) in hotList" :key="index" ref="rollul2" :class="{anim:animate.anim3==true}">
                       <div class="in">
                         <p class="title fs16 crc8 ovhidden">{{item.news_title}}</p>
@@ -332,8 +333,12 @@
         that.$api.get('getwb_list',null,r =>{
           that.returnCode(r,function(){
             that.wbList = r.data;
-            that.scrollList[0] = that.wbList;
-            setInterval(that.scroll,10157,0,'rollul','70')
+            let len = that.wbList.length;
+            r.data.forEach(ele => {
+              that.wbList.push(ele)
+            });
+            //setInterval(that.scroll,3157,0,'rollul','70') 
+            that.scroll(len,70,1);
           })
         });
       },
@@ -343,16 +348,20 @@
         let that = this;
         that.$api.get('mths_list',null,r =>{
           that.returnCode(r,function(){
-            that.mediaList = r.data;
-            that.mediaList.forEach((item,index)=>{
+            let len = r.data.length;
+            r.data.forEach((item,index)=>{
               if(index<9){
                 item.ind = "0"+(index+1);
               }else{
                 item.ind = index+1;
               }
             })
-            that.scrollList[1] = that.mediaList;
-            setInterval(that.scroll,9899,1,'rollul1','58')
+            that.mediaList = r.data;
+            r.data.forEach(ele => {
+              that.mediaList.push(ele)
+            });
+            that.scroll(len,58,2);
+            //setInterval(that.scroll,9899,1,'rollul1','58')
           })
         })
       },
@@ -374,8 +383,11 @@
         that.$api.get('hot_article',null,r =>{
           that.returnCode(r,function(){
             that.hotList = r.data;
-            that.scrollList[2] = that.hotList;
-            setInterval(that.scroll,10200,2,'rollul2','64')
+            let len = that.hotList.length;
+            r.data.forEach(ele => {
+              that.hotList.push(ele)
+            });
+            that.scroll(len,70,3);
           })
         })
       },
@@ -400,7 +412,7 @@
 
         if(that.firstTime){
           that.firstTime=false;
-          that.currVideo = 0;
+          that.currVideo = 1;
         }
 
         let video = document.getElementById(id);
@@ -435,18 +447,28 @@
           })
         })
       },
-      scroll(type,relName,ht){
-        let that = this; // 在异步函数中会出现this的偏移问题，此处一定要先保存好this的指向
-        let con1 = that.$refs[relName];
-        con1[0].style.marginTop = ht + 'px';
-        that.animate['anim'+(type+1)]=!that.animate['anim'+(type+1)];
-        setTimeout(function(){
-          that.scrollList[type].push(that.scrollList[type][0]);
-          that.scrollList[type].shift();
-          con1[0].style.marginTop='0px';
-          that.animate['anim'+(type+1)]=!that.animate['anim'+(type+1)];  // 这个地方如果不把animate 取反会出现消息回滚的现象，此时把ul 元素的过渡属性取消掉就可以完美实现无缝滚动的效果了
-        },20)
+      scroll(len,param,index){
+        let style = document.styleSheets[0];
+        let keyframe = '';
+        for (let i = 0; i <= len; i++) {
+          let tmp  = i*100/len+'%{transform: translateY(-'+i*param+'px);}'
+          keyframe +=tmp;
+        }
+        console.log(keyframe);
+        style.insertRule("@keyframes scrollText"+index+"{"+keyframe+"}",0);//写入样式
       },
+      // scroll(type,relName,ht){
+      //   let that = this; // 在异步函数中会出现this的偏移问题，此处一定要先保存好this的指向
+      //   let con1 = that.$refs[relName];
+      //   con1[0].style.marginTop = ht + 'px';
+      //   that.animate['anim'+(type+1)]=!that.animate['anim'+(type+1)];
+      //   setTimeout(function(){
+      //     that.scrollList[type].push(that.scrollList[type][0]);
+      //     that.scrollList[type].shift();
+      //     con1[0].style.marginTop='0px';
+      //     that.animate['anim'+(type+1)]=!that.animate['anim'+(type+1)];  // 这个地方如果不把animate 取反会出现消息回滚的现象，此时把ul 元素的过渡属性取消掉就可以完美实现无缝滚动的效果了
+      //   },20)
+      // },
       scroll1(){
         let that = this;
         that.curNav = (that.curNav==0)? 1 : 0;

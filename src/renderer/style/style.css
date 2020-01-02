@@ -89,6 +89,10 @@ h2{font-size:42px;}
 .icon-wb{background-position: -30px 0;width: 22px;height: 18px;margin:0 6px 0 0;background-size: 100px;}
 .news-li{line-height: 32px;padding:3px 0;}
 .news-li .num{background-color:#07508f;width:36px;height:36px;display: block;float: left;font-size: 24px;margin-right:14px;line-height: 36px}
+.news:hover{animation-play-state:paused;}
+.newscro1{animation:scrollText1 15s infinite  cubic-bezier(1,0,0.5,0)}
+.newscro2{animation:scrollText2 15s infinite  cubic-bezier(1,0,0.5,0)}
+.newscro3{animation:scrollText3 30s infinite  cubic-bezier(1,0,0.5,0)}
 
 .plane .plane-body{height: calc(100% - 50px);}
 video{width:100%;height:100%;}
