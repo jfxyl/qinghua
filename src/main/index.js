@@ -21,7 +21,8 @@ function createWindow () {
     webPreferences: {webSecurity: false},
     height: 563,
     useContentSize: true,
-    width: 1000
+    width: 1000,
+    frame: false
   })
 
   mainWindow.loadURL(winURL)
@@ -33,6 +34,12 @@ function createWindow () {
         BrowserWindow.addDevToolsExtension("/Users/jfxy/Library/Application\ Support/Google/Chrome/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/5.3.3_0");
         // BrowserWindow.addDevToolsExtension("C:\\Users\\qingbo\\vue-devtools\\shells\\chrome");
     }
+// 主进程中
+    const ipcMain = require('electron').ipcMain;
+    ipcMain.on('download-main-video', function(event, url) {
+        console.log(url);
+        // mainWindow.webContents.downloadURL(url)
+    });
 }
 
 app.on('ready', createWindow)

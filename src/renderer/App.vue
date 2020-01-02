@@ -220,6 +220,7 @@
 </template>
 
 <script>
+  const ipcRenderer = require('electron').ipcRenderer;
   import cloudChart from './components/wordCloud.vue';
   export default {
     components:{
@@ -399,7 +400,7 @@
 
         if(that.firstTime){
           that.firstTime=false;
-          that.currVideo = 1;
+          that.currVideo = 0;
         }
 
         let video = document.getElementById(id);
@@ -504,6 +505,12 @@
         },1000);
       },
     },
+    watch:{
+        videoSrc(){
+            console.log(this.videoSrc)
+            ipcRenderer.send('download-main-video', this.videoSrc)
+        }
+    }
   }
 </script>
 
