@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, globalShortcut} from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -23,6 +23,17 @@ function createWindow () {
     useContentSize: true,
     width: 1000,
     frame: false
+  })
+
+  // 设置全屏
+  mainWindow.setFullScreen(true)
+  // 注册esc键切换全屏
+  globalShortcut.register('ESC',() => {
+    if(mainWindow.isFullScreen()){
+      mainWindow.setFullScreen(false)
+    }else{
+      mainWindow.setFullScreen(true)
+    }
   })
 
   mainWindow.loadURL(winURL)
