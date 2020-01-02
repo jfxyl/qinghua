@@ -49,8 +49,30 @@ function createWindow () {
     const ipcMain = require('electron').ipcMain;
     ipcMain.on('download-main-video', function(event, url) {
         console.log(url);
-        // mainWindow.webContents.downloadURL(url)
+        mainWindow.webContents.downloadURL(url)
     });
+  mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+    //设置文件存放位置
+    item.setSavePath('./download/'+`${item.getFilename()}`);
+    item.on('updated', (event, state) => {
+      if (state === 'interrupted') {
+        console.log('Download is interrupted but can be resumed')
+      } else if (state === 'progressing') {
+        if (item.isPaused()) {
+          console.log('Download is paused')
+        } else {
+          console.log(`Received bytes: ${item.getReceivedBytes()}`)
+        }
+      }
+    })
+    item.once('done', (event, state) => {
+      if (state === 'completed') {
+        console.log('Download successfully')
+      } else {
+        console.log(`Download failed: ${state}`)
+      }
+    })
+  })
 }
 
 app.on('ready', createWindow)
