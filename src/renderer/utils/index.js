@@ -18,13 +18,13 @@ export default {
     },
     setScreen(){
         $(function(){
-            var cx = window.screen.width/1920;
-            var cy = window.screen.height/1080;
+            var cx = window.innerWidth/1920;
+            var cy = window.innerHeight/1080;
             $("html").css('transform','scale('+cx+','+cy+')');
             $(window).resize(function () {          //当浏览器大小变化时
-                var cx = window.screen.width/1920;
-                var cy = window.screen.height/1080;
-                $("html").css('transform','scale('+cx+')')
+                var cx = window.innerWidth/1920;
+                var cy = window.innerHeight/1080;
+                $("html").css('transform','scale('+cx+','+cy+')');
             });
 
         });

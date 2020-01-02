@@ -55,7 +55,7 @@
             <div class="plane h510 bg4">
               <div class="plane-title">本地视频播放<i class="icons icon-tit"></i></div>
               <div class="plane-body pt0 por">
-                <video class="video1" id="video_id" :src="videoSrc"  width="" height="" controls="controls" autoplay="autoplay"></video>
+                <video class="video1" id="video_id" :src="videoSrc"  width="" height="" autoplay="autoplay"></video>
               </div>
             </div>
           </div>
