@@ -59,7 +59,8 @@
     "electron-localstorage": "^1.0.5",
     "jquery": "^3.4.1",
     "vue": "^2.5.16",
-    "vue-electron": "^1.0.6"
+    "vue-electron": "^1.0.6",
+    "vue-seamless-scroll": "^1.1.17"
   },
   "devDependencies": {
     "ajv": "^6.5.0",

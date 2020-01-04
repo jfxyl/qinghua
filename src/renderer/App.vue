@@ -31,14 +31,16 @@
                 </div>
                 <div class="echart-warp o-hidden clearfix">
                   <div class="news-warp h430" id="FontScroll">
-                    <ul class="news newscro1">
-                      <li class="news-li clearfix" v-for="(item,index) in wbList" :key="index" ref="rollul" :class="{anim:animate.anim1==true}">
-                        <div class="in">
-                          <p class="title fs16 crc8 ovhidden">{{item.content}}</p>
-                          <p class="ar cr74">{{time(item.create_time)}}</p>
-                        </div>
-                      </li>
-                    </ul>
+                    <vue-seamless-scroll :data="wbList" :class-option="optionSetting" class="news-warp h430">
+                          <ul class="news newscro1">
+                              <li class="news-li clearfix" v-for="(item,index) in wbList" :key="index" ref="rollul" :class="{anim:animate.anim1==true}">
+                                  <div class="in">
+                                      <p class="title fs16 crc8 ovhidden">{{item.content}}</p>
+                                      <p class="ar cr74">{{time(item.create_time)}}</p>
+                                  </div>
+                              </li>
+                          </ul>
+                      </vue-seamless-scroll>
                   </div>
                 </div>
               </div>
@@ -55,7 +57,7 @@
             <div class="plane h510 bg4">
               <div class="plane-title">本地视频播放<i class="icons icon-tit"></i></div>
               <div class="plane-body pt0 por">
-                <video class="video1" id="video_id" :src="videoSrc" controls autoplay width="" height="" muted></video>
+                <video class="video1" id="video_id" :src="videoSrc" autoplay width="" height="" muted></video>
               </div>
             </div>
           </div>
@@ -161,14 +163,15 @@
               <div class="plane-title">媒体华水<i class="icons icon-tit"></i></div>
               <div class="plane-body">
                 <div class="news-warp media-li h290" id="FontScroll">
-                  <ul class="news mt5 newscro2">
-                    <li class="news-li clearfix" v-for="(item,index) in mediaList" :key="index" ref="rollul1" :class="{anim:animate.anim2==true}">
-                      <span class="cr74 fr">{{time(item._source.news_postdate)}}</span>
-                      <i class="num ac">{{item.ind}}</i>
-                      <p class="title fs16 crc8 ovhidden">{{item._source.news_title}}</p>
-                    </li>
-
-                  </ul>
+                  <vue-seamless-scroll :data="mediaList" :class-option="optionSetting1" class="news-warp h290">
+                    <ul class="news mt5 newscro2">
+                        <li class="news-li clearfix" v-for="(item,index) in mediaList" :key="index" ref="rollul1" :class="{anim:animate.anim2==true}">
+                            <span class="cr74 fr">{{time(item._source.news_postdate)}}</span>
+                            <i class="num ac">{{item.ind}}</i>
+                            <p class="title fs16 crc8 ovhidden">{{item._source.news_title}}</p>
+                        </li>
+                    </ul>
+                  </vue-seamless-scroll >
                 </div>
               </div>
             </div>
@@ -199,9 +202,10 @@
             <i class="icons icon-arrow4"></i>
             <!-- 矩阵热文 -->
             <div class="plane h362">
-              <div class="plane-title mb0">矩阵热文<i class="icons icon-tit"></i></div>
+              <div class="plane-title">矩阵热文<i class="icons icon-tit"></i></div>
               <div class="plane-body">
                 <div class="news-warp h290" id="FontScroll">
+                  <vue-seamless-scroll :data="hotList" :class-option="optionSetting2" class="news-warp h290">
                   <ul class="news newscro3">
                     <li class="news-li clearfix" v-for="(item,index) in hotList" :key="index" ref="rollul2" :class="{anim:animate.anim3==true}">
                       <div class="in">
@@ -210,6 +214,7 @@
                       </div>
                     </li>
                   </ul>
+                  </vue-seamless-scroll>
                 </div>
               </div>
             </div>
@@ -225,9 +230,10 @@
   const crypto = require('crypto');
   const storage = require('electron-localstorage');
   import cloudChart from './components/wordCloud.vue';
+  import vueSeamlessScroll from 'vue-seamless-scroll';
   export default {
     components:{
-      cloudChart
+        cloudChart,vueSeamlessScroll
     },
     name: 'App',
     data() {
@@ -290,6 +296,32 @@
         // })
       })
     },
+    computed: {
+        optionSetting () {
+            return {
+                step: 4, // 数值越大速度滚动越快
+                direction: 1, // 0向下 1向上 2向左 3向右
+                singleHeight: 70, // 单步运动停止的高度(默认值0是无缝不停止的滚动) direction => 0/1
+                waitTime: 3000 // 单步运动停止的时间(默认值1000ms)
+            }
+        },
+        optionSetting1() {
+            return {
+                step: .5, // 数值越大速度滚动越快
+                direction: 1, // 0向下 1向上 2向左 3向右
+                singleHeight: 0, // 单步运动停止的高度(默认值0是无缝不停止的滚动) direction => 0/1
+                waitTime: 4000 // 单步运动停止的时间(默认值1000ms)
+            }
+        },
+        optionSetting2() {
+            return {
+                step: .5, // 数值越大速度滚动越快
+                direction: 1, // 0向下 1向上 2向左 3向右
+                singleHeight: 0, // 单步运动停止的高度(默认值0是无缝不停止的滚动) direction => 0/1
+                waitTime: 4000 // 单步运动停止的时间(默认值1000ms)
+            }
+        },
+    },
     methods: {
       // code判断
       returnCode (data,callback) {
@@ -350,12 +382,12 @@
         that.$api.get('getwb_list',null,r =>{
           that.returnCode(r,function(){
             that.wbList = r.data;
-            let len = that.wbList.length;
-            r.data.forEach(ele => {
-              that.wbList.push(ele)
-            });
-            //setInterval(that.scroll,3157,0,'rollul','70') 
-            that.scroll(len,70,1);
+            // let len = that.wbList.length;
+            // r.data.forEach(ele => {
+            //   that.wbList.push(ele)
+            // });
+            // //setInterval(that.scroll,3157,0,'rollul','70') 
+            // that.scroll(len,70,1);
           })
         });
       },
@@ -374,10 +406,10 @@
               }
             })
             that.mediaList = r.data;
-            r.data.forEach(ele => {
-              that.mediaList.push(ele)
-            });
-            that.scroll(len,58,2);
+            // r.data.forEach(ele => {
+            //   that.mediaList.push(ele)
+            // });
+            // that.scroll(len,58,2);
             //setInterval(that.scroll,9899,1,'rollul1','58')
           })
         })
@@ -400,11 +432,11 @@
         that.$api.get('hot_article',null,r =>{
           that.returnCode(r,function(){
             that.hotList = r.data;
-            let len = that.hotList.length;
-            r.data.forEach(ele => {
-              that.hotList.push(ele)
-            });
-            that.scroll(len,70,3);
+            // let len = that.hotList.length;
+            // r.data.forEach(ele => {
+            //   that.hotList.push(ele)
+            // });
+            // that.scroll(len,70,3);
           })
         })
       },
