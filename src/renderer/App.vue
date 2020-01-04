@@ -55,7 +55,7 @@
             <div class="plane h510 bg4">
               <div class="plane-title">本地视频播放<i class="icons icon-tit"></i></div>
               <div class="plane-body pt0 por">
-                <video class="video1" id="video_id" :src="videoSrc"  width="" height="" autoplay="autoplay" muted></video>
+                <video class="video1" id="video_id" :src="videoSrc" controls autoplay width="" height="" muted></video>
               </div>
             </div>
           </div>
@@ -222,6 +222,8 @@
 
 <script>
   const ipcRenderer = require('electron').ipcRenderer;
+  const crypto = require('crypto');
+  const storage = require('electron-localstorage');
   import cloudChart from './components/wordCloud.vue';
   export default {
     components:{
@@ -251,7 +253,7 @@
         firstTime:true,
         videoList:[],//视频列表
         videoLen:0,//视频列表个数
-        currVideoVideo:0,  //当前播放的视频 
+        currVideo:0,  //当前播放的视频 
         lvId:'',
         videoSrc:'',
       }
@@ -271,6 +273,21 @@
         that.videoAjax();
         setInterval(that.haveChange,2000)
         setInterval(that.getDate,1000);
+        var myVideo=document.getElementById("video_id");  
+        myVideo.addEventListener('error',function(){ 
+          if(that.videoSrc){
+            console.log('error')
+            var fileId = crypto.createHash('md5').update(that.videoSrc).digest("hex");
+            var filepath = storage.getItem(fileId);
+            if(filepath){
+              that.videoSrc = filepath
+            }else{
+              that.play()
+            }
+          }
+        });  
+        // myVideo.addEventListener('pause',function(){  
+        // })
       })
     },
     methods: {
@@ -408,18 +425,18 @@
       },
       //本地视频
       play(id){
+        console.log('play')
         let that = this;
 
         if(that.firstTime){
           that.firstTime=false;
           that.currVideo = 1;
         }
-
         let video = document.getElementById(id);
+        console.log(that.videoList,that.currVideo)
         that.videoSrc = that.videoList[that.currVideo].url;
-        video.load();
-        //console.log(video.src);
-        video.play();
+        // video.load();
+        // video.play();
         that.lvId = that.videoList[that.currVideo].id;
         that.$api.get('local_video_ing',{lvid:that.lvId},r =>{
         });
@@ -433,18 +450,49 @@
         that.videoList=[];
         that.$api.get('local_video',null,r =>{
           that.returnCode(r,function(){
+            r.data.push({id:19,url:"https://vdse.bdstatic.com/d719a00ef3e9242e4f15d09eb3a56885?authorization=bce-auth-v1%2F40f207e648424f47b2e3dfbb1014b1a5%2F2017-05-11T09%3A02%3A31Z%2F-1%2F%2Fa995633866dcbad98a024d34995d8307e8bd7db308387283e725884842c7561e",sort:"1",status:"1",create_time:"2019-01-24 18:16:15"})
             that.videoList = r.data;
-            that.videoLen = that.videoList.length;//播放列表的长度
+            that.videoList.forEach(element => {
+              console.log(element)
+              ipcRenderer.send('download-main-video', element.url)
+            });
             let video = document.getElementById("video_id");
+            if(that.videoList.length > 1){
+              video.loop = false
+            }else{
+              video.loop = true
+            }
+            console.log(that.videoList)
+            console.log(that.videoList[0].url)
+            that.videoLen = that.videoList.length;//播放列表的长度
             that.videoSrc = that.videoList[0].url;
-            video.play();
+            // video.play();
             that.lvId = that.videoList[0].id;
             that.$api.get('local_video_ing',{lvid:that.lvId},r =>{});
             video.addEventListener('ended', function(){
               that.play('video_id');
-
             });
           })
+        },null,e => {
+          // that.videoList.push({id:19,url:"https://vdse.bdstatic.com/d719a00ef3e9242e4f15d09eb3a56885?authorization=bce-auth-v1%2F40f207e648424f47b2e3dfbb1014b1a5%2F2017-05-11T09%3A02%3A31Z%2F-1%2F%2Fa995633866dcbad98a024d34995d8307e8bd7db308387283e725884842c7561e",sort:"1",status:"1",create_time:"2019-01-24 18:16:15"})
+          that.$set(that.videoList, 0, {id:19,url:"https://vdse.bdstatic.com/d719a00ef3e9242e4f15d09eb3a56885?authorization=bce-auth-v1%2F40f207e648424f47b2e3dfbb1014b1a5%2F2017-05-11T09%3A02%3A31Z%2F-1%2F%2Fa995633866dcbad98a024d34995d8307e8bd7db308387283e725884842c7561e",sort:"1",status:"1",create_time:"2019-01-24 18:16:15"})
+          console.log(that.videoList)
+          let video = document.getElementById("video_id");
+          if(that.videoList.length > 1){
+            video.loop = false
+          }else{
+            video.loop = true
+          }
+          console.log(that.videoList)
+          console.log(that.videoList[0].url)
+          that.videoLen = that.videoList.length;//播放列表的长度
+          that.videoSrc = that.videoList[0].url;
+          // video.play();
+          that.lvId = that.videoList[0].id;
+          that.$api.get('local_video_ing',{lvid:that.lvId},r =>{});
+          video.addEventListener('ended', function(){
+            that.play('video_id');
+          });
         })
       },
       scroll(len,param,index){
@@ -526,12 +574,6 @@
           that.timer = setTimeout(that.scroll1,9900)
         },1000);
       },
-    },
-    watch:{
-        videoSrc(){
-            console.log(this.videoSrc)
-            ipcRenderer.send('download-main-video', this.videoSrc)
-        }
     }
   }
 </script>

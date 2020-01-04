@@ -92,7 +92,7 @@ h2{font-size:42px;}
 .news:hover{animation-play-state:paused;}
 .newscro1{animation:scrollText1 15s infinite  cubic-bezier(1,0,0.5,0)}
 .newscro2{animation:scrollText2 15s infinite  cubic-bezier(1,0,0.5,0)}
-.newscro3{animation:scrollText3 30s infinite  cubic-bezier(1,0,0.5,0)}
+.newscro3{animation:scrollText3 40s infinite  linear}
 
 .plane .plane-body{height: calc(100% - 50px);}
 video{width:100%;height:100%;}

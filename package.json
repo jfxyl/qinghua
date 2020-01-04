@@ -51,9 +51,12 @@
     }
   },
   "dependencies": {
+    "auto-launch": "^5.0.5",
     "axios": "^0.18.0",
+    "crypto": "^1.0.1",
     "echarts": "^4.6.0",
     "echarts-wordcloud": "^1.1.3",
+    "electron-localstorage": "^1.0.5",
     "jquery": "^3.4.1",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6"

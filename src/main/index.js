@@ -1,4 +1,29 @@
 import { app, BrowserWindow, globalShortcut} from 'electron'
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const storage = require('electron-localstorage');
+const AutoLaunch = require('auto-launch');
+var demo = new AutoLaunch({
+    name: 'qinghua',
+    //path: '/Applications/Minecraft.app',
+});
+demo.enable();
+
+let myWindow = null
+const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (myWindow) {
+    if (myWindow.isMinimized()) myWindow.restore()
+    myWindow.focus()
+  }
+})
+
+if (shouldQuit) {
+  app.quit()
+}
+
+app.commandLine.appendSwitch('--disable-http-cache')
 
 /**
  * Set `__static` path to static files in production
@@ -41,37 +66,48 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-    if (process.env.NODE_ENV === 'development') {
-        BrowserWindow.addDevToolsExtension("/Users/jfxy/Library/Application\ Support/Google/Chrome/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/5.3.3_0");
-        // BrowserWindow.addDevToolsExtension("C:\\Users\\qingbo\\vue-devtools\\shells\\chrome");
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //     BrowserWindow.addDevToolsExtension("/Users/jfxy/Library/Application\ Support/Google/Chrome/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/5.3.3_0");
+    //     // BrowserWindow.addDevToolsExtension("C:\\Users\\qingbo\\vue-devtools\\shells\\chrome");
+    // }
 // 主进程中
     const ipcMain = require('electron').ipcMain;
     ipcMain.on('download-main-video', function(event, url) {
-        console.log(url);
-        mainWindow.webContents.downloadURL(url)
+      mainWindow.webContents.downloadURL(url)
     });
+
   mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
     //设置文件存放位置
-    item.setSavePath('./download/'+`${item.getFilename()}`);
-    item.on('updated', (event, state) => {
-      if (state === 'interrupted') {
-        console.log('Download is interrupted but can be resumed')
-      } else if (state === 'progressing') {
-        if (item.isPaused()) {
-          console.log('Download is paused')
-        } else {
-          console.log(`Received bytes: ${item.getReceivedBytes()}`)
+    var fileId = crypto.createHash('md5').update(item.getURL()).digest("hex");
+    var filename = fileId+'_'+item.getFilename();
+    var filepath = path.resolve('./download/'+filename)
+    console.log(filepath)
+    try{
+      fs.accessSync(filepath,fs.constants.F_OK)
+      item.cancel()
+    }catch(err){
+      item.setSavePath(filepath);
+      item.on('updated', (event, state) => {
+        if (state === 'interrupted') {
+          console.log('Download is interrupted but can be resumed')
+        } else if (state === 'progressing') {
+          if (item.isPaused()) {
+            console.log('Download is paused')
+          } else {
+            console.log(`Received bytes: ${item.getReceivedBytes()}`)
+          }
         }
-      }
-    })
-    item.once('done', (event, state) => {
-      if (state === 'completed') {
-        console.log('Download successfully')
-      } else {
-        console.log(`Download failed: ${state}`)
-      }
-    })
+      })
+      item.once('done', (event, state) => {
+        if (state === 'completed') {
+          console.log('Download successfully')
+          storage.setItem(fileId,filepath);
+          console.log(storage.getStoragePath())
+        } else {
+          console.log(`Download failed: ${state}`)
+        }
+      })
+    }
   })
 }
 
